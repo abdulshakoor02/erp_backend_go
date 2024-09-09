@@ -1,0 +1,21 @@
+services:
+  erp_backend:
+    build:
+      context: ./
+    image: erp_backend
+    restart: always
+    container_name: erp_backend
+    env_file: .env
+    ports:
+      - "4000:4000"
+    networks:
+      - erp_backend
+    volumes:
+      - ./:/app/:delegated #delegates speeds up mac os volumes
+    command:
+      - make
+      - build
+
+networks:
+  erp_backend:
+    driver: bridge

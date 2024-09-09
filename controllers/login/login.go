@@ -33,8 +33,18 @@ func Login(c *fiber.Ctx) error {
 
 		// Return a 200 OK response
 		response, err2 := json.Marshal(struct {
-			Token string `json:"token"`
-		}{Token: signedToken})
+			Token    string        `json:"token"`
+			UserData user.UserData `json:"userData"`
+		}{
+			Token: signedToken,
+			UserData: user.UserData{
+				Id:       1,
+				Email:    "test@test.com",
+				Username: "test",
+				Fullname: "test name",
+				Role:     "admin",
+			},
+		})
 		if err2 != nil {
 			log.Err(err2).Msgf("failed to sign token : %v", err2)
 			return c.Status(fiber.StatusUnauthorized).SendString("invalid Request")

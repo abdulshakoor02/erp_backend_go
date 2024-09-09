@@ -37,7 +37,9 @@ func AuthHandler(c *fiber.Ctx) error {
 
 		parsedClaim := token.Claims.(jwt.MapClaims)
 		if parsedClaim["email"] == "test@test.com" && parsedClaim["password"] == "test@123" {
-			fmt.Println("user authorised")
+			if path == "/auth" {
+				return c.Status(fiber.StatusOK).SendString("success")
+			}
 			return c.Next()
 		} else {
 			return c.Status(fiber.StatusUnauthorized).SendString("invalid Request")

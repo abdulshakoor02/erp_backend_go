@@ -1,8 +1,6 @@
-.PHONY: build run
-
+SHELL=/bin/bash
+.PHONY:	build
 build:
 	go mod download
-	go build -o app
-
-run: build
-	        ./app
+	go build -buildvcs=false -o app
+	./app
