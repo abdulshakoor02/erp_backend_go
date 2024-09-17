@@ -6,11 +6,13 @@ import (
 	//
 	// "github.com/abdul/erp_backend/database/dbAdapter"
 
+	"encoding/json"
 	"fmt"
 
 	"github.com/abdul/erp_backend/logger"
 
 	"github.com/abdul/erp_backend/config"
+	"github.com/abdul/erp_backend/models/user"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -38,7 +40,18 @@ func AuthHandler(c *fiber.Ctx) error {
 		parsedClaim := token.Claims.(jwt.MapClaims)
 		if parsedClaim["email"] == "test@test.com" && parsedClaim["password"] == "test@123" {
 			if path == "/auth" {
-				return c.Status(fiber.StatusOK).SendString("success")
+				response, err := json.Marshal(user.UserData{
+					Id:       1,
+					Email:    "test@test.com",
+					Username: "test",
+					Fullname: "test name",
+					Role:     "admin",
+				})
+				if err != nil {
+					log.Err(err).Msgf("failed to sign token : %v", err)
+					return c.Status(fiber.StatusUnauthorized).SendString("invalid Request")
+				}
+				return c.Status(fiber.StatusOK).SendString(string(response))
 			}
 			return c.Next()
 		} else {

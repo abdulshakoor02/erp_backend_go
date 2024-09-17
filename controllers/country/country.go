@@ -7,12 +7,12 @@ import (
 )
 
 type Country struct {
-	ID             string `json:"id" gorm:"type:string;size:100;primary_key;default:gen_random_uuid()"`
+	ID             string `json:"id"              gorm:"type:string;size:100;primary_key;default:gen_random_uuid()"`
 	Name           string `json:"name"`
-	Code           string `json:"code" gorm:"unique"`
-	Currency       string `json:"currency" gorm:"unique"`
-	CurrencyName   string `json:"currency_name" gorm:"unique"`
-	CurrencySymbol string `json:"currency_symbol" gorm:"unique"`
+	Code           string `json:"code"`
+	Currency       string `json:"currency"`
+	CurrencyName   string `json:"currency_name"`
+	CurrencySymbol string `json:"currency_symbol"`
 }
 
 func CreateCountry(c *fiber.Ctx) error {
