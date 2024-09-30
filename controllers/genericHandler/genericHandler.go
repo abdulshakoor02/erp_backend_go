@@ -45,7 +45,11 @@ func CreateHandler[T any](c *fiber.Ctx) error {
 func FindHandler[T any](c *fiber.Ctx) error {
 	// Get the authorization header
 	// authHeader := c.Get("Authorization")
-
+	var response struct {
+		Data  []T   `json:"data"`
+		Count int64 `json:"count"`
+	}
+	var Count int64
 	// Get the JSON object from the body
 	var genericData struct {
 		Where  T
@@ -58,29 +62,32 @@ func FindHandler[T any](c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
 
-	// // Marshal the struct back to a JSON string
-	// newJSONData, err := json.Marshal(genericData)
-	// if err != nil {
-	// 	fmt.Println("Error:", err)
-	// }
-
 	db := dbAdapter.DB
 	// Use the gorm.Statement to exclude certain fields from the Where clause
 	var result []T
-	if int(genericData.Limit) != 0 && int(genericData.Offset) != 0 {
-		// db = db.Limit(int(genericData.Limit)).Offset(int(genericData.Offset)).Where(&genericData.Where).Find(&result)
-		db = db.Limit(int(genericData.Limit)).Offset(int(genericData.Offset)).Where(&genericData.Where)
+	if err := db.Model(&result).Count(&Count).Error; err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
+	}
+	if int(genericData.Limit) != 0 {
+		fmt.Print("here")
+		db = db.Limit(int(genericData.Limit)).
+			Offset(int(genericData.Offset)).
+			Where(&genericData.Where)
 	} else {
 		// db = db.Where(&genericData.Where).Find(&result)
 		db = db.Where(&genericData.Where)
 	}
-
 	if err := db.Find(&result).Error; err != nil {
+		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
 
+	response.Count = Count
+	response.Data = result
+
 	// dbAdapter.DB.Find(&result)
-	newJSONData2, err := json.Marshal(result)
+	newJSONData2, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
