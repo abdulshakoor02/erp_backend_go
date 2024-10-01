@@ -65,12 +65,14 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	db := dbAdapter.DB
 	// Use the gorm.Statement to exclude certain fields from the Where clause
 	var result []T
-	if err := db.Model(&result).Count(&Count).Error; err != nil {
+
+	if err := db.Model(&result).Where(&genericData.Where).Count(&Count).Error; err != nil {
 		log.Info().Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
+	db = dbAdapter.DB
+
 	if int(genericData.Limit) != 0 {
-		fmt.Print("here")
 		db = db.Limit(int(genericData.Limit)).
 			Offset(int(genericData.Offset)).
 			Where(&genericData.Where)
@@ -78,6 +80,7 @@ func FindHandler[T any](c *fiber.Ctx) error {
 		// db = db.Where(&genericData.Where).Find(&result)
 		db = db.Where(&genericData.Where)
 	}
+
 	if err := db.Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
