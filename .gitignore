@@ -2,3 +2,4 @@ app
 .air.toml
 .env
 erp_backend.log
+tmp/
