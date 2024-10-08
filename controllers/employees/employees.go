@@ -8,18 +8,26 @@ import (
 )
 
 type Employees struct {
+	gorm.Model
 	ID         string
 	FirstName  string
 	LastName   string
 	Phone      string
 	Email      string
 	Password   string
-	Country    string
+	CountryId  string
 	CreatedBy  string
 	ModifiedBy string
 	TenantId   string
 	Status     string
 	DeletedAt  gorm.DeletedAt
+	Country    Countries
+}
+
+type Countries struct {
+	gorm.Model
+	ID   string `json:"country_id"`
+	Name string `json:"country_name"`
 }
 
 func CreateEmployees(c *fiber.Ctx) error {
@@ -29,6 +37,11 @@ func CreateEmployees(c *fiber.Ctx) error {
 func FindEmployees(c *fiber.Ctx) error {
 
 	return genericHandler.FindHandler[Employees](c)
+}
+
+func FindEmployeesAssociated(c *fiber.Ctx) error {
+
+	return genericHandler.FindAssociatedHandler[Employees](c)
 }
 
 func UpdateEmployees(c *fiber.Ctx) error {

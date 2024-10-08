@@ -44,6 +44,7 @@ func main() {
 	//branch routes
 	app.Post("/branch/create", branchController.CreateBranch)
 	app.Post("/branch/find", branchController.FindBranch)
+	app.Post("/branch/findAssociated", branchController.FindBranchAssociated)
 	app.Post("/branch/update", branchController.UpdateBranch)
 	app.Post("/branch/delete", branchController.DeleteBranch)
 
@@ -62,6 +63,7 @@ func main() {
 	//employees routes
 	app.Post("/employees/create", employeesController.CreateEmployees)
 	app.Post("/employees/find", employeesController.FindEmployees)
+	app.Post("/employees/findAssociated", employeesController.FindEmployeesAssociated)
 	app.Post("/employees/update", employeesController.UpdateEmployees)
 	app.Post("/employees/delete", employeesController.DeleteEmployees)
 
@@ -92,6 +94,7 @@ func main() {
 	//tenants routes
 	app.Post("/tenants/create", tenantsController.CreateTenants)
 	app.Post("/tenants/find", tenantsController.FindTenants)
+	app.Post("/tenants/findAssociated", tenantsController.FindAssociatedTenants)
 	app.Post("/tenants/update", tenantsController.UpdateTenants)
 	app.Post("/tenants/delete", tenantsController.DeleteTenants)
 

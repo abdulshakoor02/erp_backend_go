@@ -8,11 +8,11 @@ import (
 )
 
 type Role struct {
-	ID         string
-	Name       string
+	ID         string `json:"id"`
+	Name       string `json:"name"`
 	CreatedBy  string
 	ModifiedBy string
-	Status     string
+	Status     string `json:"status"`
 	DeletedAt  gorm.DeletedAt
 }
 
