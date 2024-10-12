@@ -88,6 +88,7 @@ func main() {
 	//rolefeatures routes
 	app.Post("/rolefeatures/create", rolefeaturesController.CreateRolefeatures)
 	app.Post("/rolefeatures/find", rolefeaturesController.FindRolefeatures)
+	app.Post("/rolefeatures/findAssociated", rolefeaturesController.FindRolefeaturesAssociated)
 	app.Post("/rolefeatures/update", rolefeaturesController.UpdateRolefeatures)
 	app.Post("/rolefeatures/delete", rolefeaturesController.DeleteRolefeatures)
 

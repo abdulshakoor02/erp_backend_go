@@ -170,7 +170,7 @@ func DeleteHandler[W any, T any](c *fiber.Ctx) error {
 	// Use the gorm.Statement to exclude certain fields from the Where clause
 	var result []T
 
-	if err := db.Where(Where).Delete(&result).Error; err != nil {
+	if err := db.Where(Where).Unscoped().Delete(&result).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
 

@@ -9,25 +9,40 @@ import (
 
 type Employees struct {
 	gorm.Model
-	ID         string
-	FirstName  string
-	LastName   string
-	Phone      string
-	Email      string
-	Password   string
-	CountryId  string
-	CreatedBy  string
-	ModifiedBy string
-	TenantId   string
-	Status     string
+	ID         string    `json:"id"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	Phone      string    `json:"phone"`
+	Email      string    `json:"email"`
+	CreatedBy  string    `json:"created_by"`
+	ModifiedBy string    `json:"modified_by"`
+	CountryId  string    `json:"country_id"`
+	RoleId     string    `json:"role_id"`
+	BranchId   string    `json:"branch_id"`
+	Country    Countries `json:"country"`
+	Role       Role      `json:"role"`
+	Branch     Branch    `json:"branch"`
+	TenantId   string    `json:"tenant_id"`
+	Status     string    `json:"status"`
 	DeletedAt  gorm.DeletedAt
-	Country    Countries
 }
 
 type Countries struct {
 	gorm.Model
 	ID   string `json:"country_id"`
 	Name string `json:"country_name"`
+}
+
+type Role struct {
+	gorm.Model
+	ID   string `json:"role_id"`
+	Name string `json:"role_name"`
+}
+
+type Branch struct {
+	gorm.Model
+	ID   string `json:"branch_id"`
+	Name string `json:"branch_name"`
 }
 
 func CreateEmployees(c *fiber.Ctx) error {

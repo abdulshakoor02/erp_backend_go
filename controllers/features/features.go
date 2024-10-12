@@ -1,6 +1,8 @@
 package featuresController
 
 import (
+	"time"
+
 	"github.com/abdul/erp_backend/controllers/genericHandler"
 	"github.com/abdul/erp_backend/models/organization/features"
 	"github.com/gofiber/fiber/v2"
@@ -8,12 +10,11 @@ import (
 )
 
 type Features struct {
-	ID         string
-	Name       string
-	CreatedBy  string
-	ModifiedBy string
-	Status     string
-	DeletedAt  gorm.DeletedAt
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt gorm.DeletedAt
 }
 
 func CreateFeatures(c *fiber.Ctx) error {

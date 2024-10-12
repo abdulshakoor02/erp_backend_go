@@ -6,9 +6,11 @@ type User struct {
 }
 
 type UserData struct {
-	Id       int    `json:"id"`
-	Role     string `json:"role"`
-	Fullname string `json:"fullName"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Id       string   `json:"id"`
+	Role     string   `json:"role"`
+	Fullname string   `json:"fullName"`
+	Username string   `json:"username"`
+	Email    string   `json:"email"`
+	Features []string `json:"features"`
+	TenantId string   `json:"tenant_id"`
 }
