@@ -15,6 +15,9 @@ var POSTGRES_USER string
 var POSTGRES_PASSWORD string
 var POSTGRES_PORT string
 var SECRET_KEY string
+var NEXT_CLOUD_URL string
+var NEXT_CLOUD_USERNAME string
+var NEXT_CLOUD_PASSWORD string
 
 func LoadEnv() {
 	log := logger.Logger
@@ -29,4 +32,7 @@ func LoadEnv() {
 	POSTGRES_PASSWORD = os.Getenv("POSTGRES_PASSWORD")
 	POSTGRES_PORT = os.Getenv("POSTGRES_PORT")
 	SECRET_KEY = os.Getenv("SECRET_KEY")
+	NEXT_CLOUD_URL = os.Getenv("NEXT_CLOUD_URL")
+	NEXT_CLOUD_USERNAME = os.Getenv("NEXT_CLOUD_USERNAME")
+	NEXT_CLOUD_PASSWORD = os.Getenv("NEXT_CLOUD_PASSWORD")
 }

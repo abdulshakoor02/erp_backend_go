@@ -18,6 +18,7 @@ type Tenants struct {
 	CountryId string    `json:"country_id"`
 	Country   Countries `json:"country"`
 	Status    string    `json:"status"`
+	Logo      string    `json:"logo"`
 }
 
 type Countries struct {

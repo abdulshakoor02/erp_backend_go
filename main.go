@@ -2,16 +2,20 @@ package main
 
 import (
 	"fmt"
-	// "log"
 
 	"github.com/abdul/erp_backend/config"
+	addtionalInfoController "github.com/abdul/erp_backend/controllers/addtionalInfo"
 	branchController "github.com/abdul/erp_backend/controllers/branch"
 	countryController "github.com/abdul/erp_backend/controllers/country"
 	designationController "github.com/abdul/erp_backend/controllers/designation"
 	employeesController "github.com/abdul/erp_backend/controllers/employees"
 	featuresController "github.com/abdul/erp_backend/controllers/features"
+	"github.com/abdul/erp_backend/controllers/fileUpload"
+	leadCategoryController "github.com/abdul/erp_backend/controllers/leadCategory"
+	leadsController "github.com/abdul/erp_backend/controllers/leads"
 	"github.com/abdul/erp_backend/controllers/login"
 	"github.com/abdul/erp_backend/controllers/middleware"
+	productsController "github.com/abdul/erp_backend/controllers/products"
 	regionController "github.com/abdul/erp_backend/controllers/region"
 	roleController "github.com/abdul/erp_backend/controllers/role"
 	rolefeaturesController "github.com/abdul/erp_backend/controllers/rolefeatures"
@@ -20,8 +24,8 @@ import (
 	"github.com/abdul/erp_backend/database/migration"
 	"github.com/abdul/erp_backend/logger"
 
-	// "github.com/abdul/erp_backend/models/organization/branch"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 )
 
@@ -33,6 +37,7 @@ func main() {
 	port := fmt.Sprintf(":%d", config.PORT)
 	app := fiber.New()
 	app.Use(helmet.New())
+	app.Use(cors.New())
 	app.Use(middleware.AuthHandler)
 
 	//login
@@ -98,6 +103,34 @@ func main() {
 	app.Post("/tenants/findAssociated", tenantsController.FindAssociatedTenants)
 	app.Post("/tenants/update", tenantsController.UpdateTenants)
 	app.Post("/tenants/delete", tenantsController.DeleteTenants)
+
+	//leads routes
+	app.Post("/lead/create", leadsController.Create)
+	app.Post("/lead/find", leadsController.Find)
+	app.Post("/lead/update", leadsController.Update)
+	app.Post("/lead/delete", leadsController.Delete)
+
+	//products routes
+	app.Post("/products/create", productsController.Create)
+	app.Post("/products/find", productsController.Find)
+	app.Post("/products/update", productsController.Update)
+	app.Post("/products/delete", productsController.Delete)
+
+	//leadCategory routes
+	app.Post("/leadCategory/create", leadCategoryController.Create)
+	app.Post("/leadCategory/find", leadCategoryController.Find)
+	app.Post("/leadCategory/update", leadCategoryController.Update)
+	app.Post("/leadCategory/delete", leadCategoryController.Delete)
+
+	//addtionalInfo routes
+	app.Post("/additionalInfo/create", addtionalInfoController.Create)
+	app.Post("/additionalInfo/find", addtionalInfoController.Find)
+	app.Post("/additionalInfo/update", addtionalInfoController.Update)
+	app.Post("/additionalInfo/delete", addtionalInfoController.Delete)
+
+	//fileUpload
+	app.Post("/fileUpload", fileUpload.UploadHandler)
+	app.Post("/fileDownload", fileUpload.ImagePostHandler)
 
 	log.Info().Msgf("listening on port %v", port)
 	app.Listen(port)

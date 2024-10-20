@@ -23,7 +23,7 @@ func CreateRegion(c *fiber.Ctx) error {
 
 func FindRegion(c *fiber.Ctx) error {
 
-	return genericHandler.FindHandler[Region](c)
+	return genericHandler.FindAssociatedHandler[Region](c)
 }
 
 func UpdateRegion(c *fiber.Ctx) error {

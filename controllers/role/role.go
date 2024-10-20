@@ -22,7 +22,7 @@ func CreateRole(c *fiber.Ctx) error {
 
 func FindRole(c *fiber.Ctx) error {
 
-	return genericHandler.FindHandler[Role](c)
+	return genericHandler.FindAssociatedHandler[role.Role](c)
 }
 
 func UpdateRole(c *fiber.Ctx) error {

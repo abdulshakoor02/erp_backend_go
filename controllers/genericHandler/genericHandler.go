@@ -24,23 +24,22 @@ func CreateHandler[T any](c *fiber.Ctx) error {
 		log.Info().Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
-	dbAdapter.DB.Debug()
+	// dbAdapter.DB.Debug()
 
 	// Marshal the struct back to a JSON string
-	newJSONData, err := json.Marshal(genericData)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
 	if err := dbAdapter.DB.Create(&genericData).Error; err != nil {
 		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("%d", err))
 	}
 
+	newJSONData2, err := json.Marshal(genericData)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 	// Print the JSON object and authorization header
-	fmt.Println(string(newJSONData))
 
 	// Return a 200 OK response
-	return c.Status(fiber.StatusOK).SendString("Data created successfully")
+	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
 
 }
 
@@ -208,6 +207,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	var Count int64
 	// Get the JSON object from the body
 	var genericData struct {
+		Column string
 		Where  []Query
 		Joins  []Associated
 		Limit  int32
@@ -220,6 +220,8 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
 
+	tenantId := c.Locals("tenant_id")
+
 	newJSONData3, err := json.Marshal(genericData)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -228,8 +230,10 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	db := dbAdapter.DB
 	// Use the gorm.Statement to exclude certain fields from the Where clause
+
 	var result []T
 	db = db.Model(&result)
+
 	for _, v := range genericData.Joins {
 		db = db.InnerJoins(v.Column)
 		for i, v2 := range v.Where {
@@ -248,6 +252,11 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
 		fmt.Println(cols, v.Value)
 		db = db.Or(cols, v.Value)
+	}
+
+	if tenantId != "" && genericData.Column != "" {
+		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
+		db.Where(clause, tenantId)
 	}
 
 	if err := db.Count(&Count).Error; err != nil {
@@ -282,7 +291,11 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
 		db = db.Or(cols, v.Value)
 	}
-	// db = db.Where(&genericData.Where)
+
+	if tenantId != "" && genericData.Column != "" {
+		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
+		db.Where(clause, tenantId)
+	}
 
 	if genericData.Limit != 0 {
 		db = db.Limit(int(genericData.Limit)).Offset(int(genericData.Offset))
