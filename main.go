@@ -75,6 +75,7 @@ func main() {
 
 	//features routes
 	app.Post("/features/create", featuresController.CreateFeatures)
+	app.Post("/features/upsert", featuresController.UpsertFeatures)
 	app.Post("/features/find", featuresController.FindFeatures)
 	app.Post("/features/update", featuresController.UpdateFeatures)
 	app.Post("/features/delete", featuresController.DeleteFeatures)

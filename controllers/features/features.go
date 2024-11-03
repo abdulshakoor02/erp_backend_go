@@ -21,6 +21,10 @@ func CreateFeatures(c *fiber.Ctx) error {
 	return genericHandler.CreateHandler[features.Features](c)
 }
 
+func UpsertFeatures(c *fiber.Ctx) error {
+	return genericHandler.UpsertHandler[features.Features](c)
+}
+
 func FindFeatures(c *fiber.Ctx) error {
 
 	return genericHandler.FindHandler[Features](c)

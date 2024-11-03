@@ -7,6 +7,7 @@ import (
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm/clause"
 )
 
 var log = logger.Logger
@@ -53,9 +54,10 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	var Count int64
 	// Get the JSON object from the body
 	var genericData struct {
-		Where  T
-		Limit  int32
-		Offset int32
+		Where   T
+		Limit   int32
+		Offset  int32
+		OrderBy string
 	}
 	err := json.Unmarshal(c.Body(), &genericData)
 	if err != nil {
@@ -80,6 +82,10 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	} else {
 		// db = db.Where(&genericData.Where).Find(&result)
 		db = db.Where(&genericData.Where)
+	}
+
+	if genericData.OrderBy != "" {
+		db = db.Order(genericData.OrderBy)
 	}
 
 	if err := db.Find(&result).Error; err != nil {
@@ -207,12 +213,13 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	var Count int64
 	// Get the JSON object from the body
 	var genericData struct {
-		Column string
-		Find   T
-		Where  []Query
-		Joins  []Associated
-		Limit  int32
-		Offset int32
+		Column  string
+		OrderBy string
+		Find    T
+		Where   []Query
+		Joins   []Associated
+		Limit   int32
+		Offset  int32
 	}
 
 	err := json.Unmarshal(c.Body(), &genericData)
@@ -303,12 +310,9 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		db = db.Limit(int(genericData.Limit)).Offset(int(genericData.Offset))
 	}
 
-	// db = db.Model(&result).
-	// 	InnerJoins(joinWith, db.Where(&genericData.JoinWhere)).
-	// 	Where(&genericData.Where)
-	// if genericData.Limit != 0 {
-	// 	db = db.Limit(int(genericData.Limit)).Offset(int(genericData.Offset))
-	// }
+	if genericData.OrderBy != "" {
+		db = db.Order(genericData.OrderBy)
+	}
 
 	db.Where(genericData.Find)
 
@@ -336,4 +340,36 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
 	// return c.Status(fiber.StatusOK).SendString("Data created successfully")
+}
+
+func UpsertHandler[T any](c *fiber.Ctx) error {
+	// Get the authorization header
+	// authHeader := c.Get("Authorization")
+
+	// Get the JSON object from the body
+	var genericData []T
+
+	err := json.Unmarshal(c.Body(), &genericData)
+	if err != nil {
+		fmt.Println(err)
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+	// dbAdapter.DB.Debug()
+
+	// Marshal the struct back to a JSON string
+	if err := dbAdapter.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&genericData).Error; err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("%d", err))
+	}
+
+	newJSONData2, err := json.Marshal(genericData)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	// Print the JSON object and authorization header
+
+	// Return a 200 OK response
+	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
+
 }
