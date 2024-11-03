@@ -16,7 +16,7 @@ type Tenant struct {
 	CountryId string `json:"country_id"`
 	Country   country.Country
 	Status    string         `json:"status"     gorm:"type:string;size:100"`
-	Logo      string         `json:"logo"       gorm:"type:string;size:100;unique"`
+	Logo      string         `json:"logo"       gorm:"type:string;size:100"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`

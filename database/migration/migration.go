@@ -1,6 +1,8 @@
 package migration
 
 import (
+	"fmt"
+
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/models/organization/additionalInfo"
 	"github.com/abdul/erp_backend/models/organization/branch"
@@ -8,9 +10,12 @@ import (
 	"github.com/abdul/erp_backend/models/organization/designation"
 	"github.com/abdul/erp_backend/models/organization/employees"
 	"github.com/abdul/erp_backend/models/organization/features"
+	"github.com/abdul/erp_backend/models/organization/invoice"
 	"github.com/abdul/erp_backend/models/organization/leadCategory"
 	"github.com/abdul/erp_backend/models/organization/leads"
+	"github.com/abdul/erp_backend/models/organization/orderedProduct"
 	"github.com/abdul/erp_backend/models/organization/products"
+	"github.com/abdul/erp_backend/models/organization/reciepts"
 	"github.com/abdul/erp_backend/models/organization/region"
 	"github.com/abdul/erp_backend/models/organization/role"
 	"github.com/abdul/erp_backend/models/organization/rolefeatures"
@@ -18,7 +23,7 @@ import (
 )
 
 func MigrateDb() {
-	dbAdapter.DB.AutoMigrate(
+	if err := dbAdapter.DB.AutoMigrate(
 		&country.Country{},
 		&tenant.Tenant{},
 		&region.Region{},
@@ -32,7 +37,12 @@ func MigrateDb() {
 		&leadCategory.LeadCategory{},
 		&leads.Leads{},
 		&additionalInfo.AdditionalInfo{},
-	)
+		&invoice.Invoice{},
+		&reciepts.Reciepts{},
+		&orderedProduct.OrderedProduct{},
+	); err != nil {
+		fmt.Printf("fialed to migrate %v \n", err)
+	}
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Region")
 	// dbAdapter.DB.Migrator().CreateConstraint(&designation.Designation{}, "Tenant")

@@ -208,6 +208,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	// Get the JSON object from the body
 	var genericData struct {
 		Column string
+		Find   T
 		Where  []Query
 		Joins  []Associated
 		Limit  int32
@@ -222,11 +223,11 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	tenantId := c.Locals("tenant_id")
 
-	newJSONData3, err := json.Marshal(genericData)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	fmt.Println(string(newJSONData3))
+	// newJSONData3, err := json.Marshal(genericData)
+	// if err != nil {
+	// 	fmt.Println("Error:", err)
+	// }
+	// fmt.Println(string(newJSONData3))
 
 	db := dbAdapter.DB
 	// Use the gorm.Statement to exclude certain fields from the Where clause
@@ -258,6 +259,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
 		db.Where(clause, tenantId)
 	}
+	db.Where(genericData.Find)
 
 	if err := db.Count(&Count).Error; err != nil {
 		log.Info().Msgf("error  %v", err)
@@ -307,6 +309,9 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	// if genericData.Limit != 0 {
 	// 	db = db.Limit(int(genericData.Limit)).Offset(int(genericData.Offset))
 	// }
+
+	db.Where(genericData.Find)
+
 	if err := db.Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")

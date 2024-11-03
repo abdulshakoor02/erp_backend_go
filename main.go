@@ -11,6 +11,7 @@ import (
 	employeesController "github.com/abdul/erp_backend/controllers/employees"
 	featuresController "github.com/abdul/erp_backend/controllers/features"
 	"github.com/abdul/erp_backend/controllers/fileUpload"
+	invoiceController "github.com/abdul/erp_backend/controllers/invoice"
 	leadCategoryController "github.com/abdul/erp_backend/controllers/leadCategory"
 	leadsController "github.com/abdul/erp_backend/controllers/leads"
 	"github.com/abdul/erp_backend/controllers/login"
@@ -131,6 +132,9 @@ func main() {
 	//fileUpload
 	app.Post("/fileUpload", fileUpload.UploadHandler)
 	app.Post("/fileDownload", fileUpload.ImagePostHandler)
+
+	//invoice
+	app.Post("/invoice/create", invoiceController.Create)
 
 	log.Info().Msgf("listening on port %v", port)
 	app.Listen(port)
