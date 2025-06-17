@@ -18,6 +18,7 @@ type Branch struct {
 	Website    string    `json:"website"    gorm:"type:string;size:100"`
 	CountryId  string    `json:"countryId"  gorm:"type:string;size:100"`
 	Country    Countries `json:"country"`
+	Address    string    `json:"address"    gorm:"type:text"`
 	Tax        float64   `json:"tax"        gorm:"type:float;size:50"`
 	CreatedBy  string    `json:"createdBy"  gorm:"type:string;size:100"`
 	ModifiedBy string    `json:"modifiedBy" gorm:"type:string;size:100"`

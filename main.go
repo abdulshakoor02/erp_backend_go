@@ -5,6 +5,7 @@ import (
 
 	"github.com/abdul/erp_backend/config"
 	addtionalInfoController "github.com/abdul/erp_backend/controllers/addtionalInfo"
+	appointmentsController "github.com/abdul/erp_backend/controllers/appointments"
 	branchController "github.com/abdul/erp_backend/controllers/branch"
 	countryController "github.com/abdul/erp_backend/controllers/country"
 	designationController "github.com/abdul/erp_backend/controllers/designation"
@@ -13,6 +14,7 @@ import (
 	"github.com/abdul/erp_backend/controllers/fileUpload"
 	invoiceController "github.com/abdul/erp_backend/controllers/invoice"
 	leadCategoryController "github.com/abdul/erp_backend/controllers/leadCategory"
+	leadViewController "github.com/abdul/erp_backend/controllers/leadView"
 	leadsController "github.com/abdul/erp_backend/controllers/leads"
 	"github.com/abdul/erp_backend/controllers/login"
 	"github.com/abdul/erp_backend/controllers/middleware"
@@ -111,6 +113,7 @@ func main() {
 	app.Post("/lead/find", leadsController.Find)
 	app.Post("/lead/update", leadsController.Update)
 	app.Post("/lead/delete", leadsController.Delete)
+	app.Post("/leadView/find", leadViewController.Find)
 
 	//products routes
 	app.Post("/products/create", productsController.Create)
@@ -129,6 +132,12 @@ func main() {
 	app.Post("/additionalInfo/find", addtionalInfoController.Find)
 	app.Post("/additionalInfo/update", addtionalInfoController.Update)
 	app.Post("/additionalInfo/delete", addtionalInfoController.Delete)
+
+	//appointment routes
+	app.Post("/appointment/create", appointmentsController.Create)
+	app.Post("/appointment/find", appointmentsController.Find)
+	app.Post("/appointment/update", appointmentsController.Update)
+	app.Post("/appointment/delete", appointmentsController.Delete)
 
 	//fileUpload
 	app.Post("/fileUpload", fileUpload.UploadHandler)

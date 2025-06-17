@@ -5,6 +5,7 @@ import (
 
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/models/organization/additionalInfo"
+	"github.com/abdul/erp_backend/models/organization/appointments"
 	"github.com/abdul/erp_backend/models/organization/branch"
 	"github.com/abdul/erp_backend/models/organization/country"
 	"github.com/abdul/erp_backend/models/organization/designation"
@@ -40,8 +41,26 @@ func MigrateDb() {
 		&invoice.Invoice{},
 		&reciepts.Reciepts{},
 		&orderedProduct.OrderedProduct{},
+		&appointments.Appointments{},
 	); err != nil {
 		fmt.Printf("fialed to migrate %v \n", err)
+	}
+	// Drop view if exists (optional)
+	dbAdapter.DB.Exec("DROP VIEW IF EXISTS lead_views")
+
+	// Create view
+	createViewSQL := `
+        CREATE VIEW lead_views AS
+select  l.*,c."name" as country_name,c.currency_symbol,c.currency,
+b."name" as branch_name,b.mobile as branch_mobile,b.email as branch_email ,b.website ,b.address as branch_address,b.tax,
+lc."name" as category_name , e.first_name as employee_name  from leads l left join branches b on b.id = l.branch_id 
+left join countries c on c.id = l.country_id left join lead_categories lc on lc.id = l.lead_category_id 
+left join employees e on e.id = l.employee_id;
+    `
+	if err := dbAdapter.DB.Exec(createViewSQL).Error; err != nil {
+		fmt.Printf("failed to create lead view %v \n", err)
+	} else {
+		fmt.Println("lead view successfully created")
 	}
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Region")
