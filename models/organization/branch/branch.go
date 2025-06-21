@@ -15,15 +15,15 @@ type Branch struct {
 	Email      string `json:"email"      gorm:"type:string;size:300;unique"`
 	RegionId   string `json:"region_id"`
 	Region     region.Region
-	Website    string `json:"website"    gorm:"type:string;size:100"`
-	CountryId  string `json:"country_id"`
-	Country    country.Country
-	Address    string         `json:"address"    gorm:"type:text"`
-	Tax        float64        `json:"tax"        gorm:"type:float;size:50"`
-	CreatedBy  string         `json:"createdBy"  gorm:"type:string;size:100"`
-	ModifiedBy string         `json:"modifiedBy" gorm:"type:string;size:100"`
-	Status     string         `json:"status"     gorm:"type:string;size:100"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `                  gorm:"index"`
+	Website    string          `json:"website"    gorm:"type:string;size:100"`
+	CountryId  string          `json:"country_id"`
+	Country    country.Country `json:"country"`
+	Address    string          `json:"address"    gorm:"type:text"`
+	Tax        float64         `json:"tax"        gorm:"type:float;size:50"`
+	CreatedBy  string          `json:"createdBy"  gorm:"type:string;size:100"`
+	ModifiedBy string          `json:"modifiedBy" gorm:"type:string;size:100"`
+	Status     string          `json:"status"     gorm:"type:string;size:100"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt  `                  gorm:"index"`
 }
