@@ -49,7 +49,7 @@ func FindBranch(c *fiber.Ctx) error {
 
 func FindBranchAssociated(c *fiber.Ctx) error {
 
-	return genericHandler.FindAssociatedHandler[Branch](c)
+	return genericHandler.FindAssociatedHandler[branch.Branch](c)
 }
 
 func UpdateBranch(c *fiber.Ctx) error {
