@@ -27,7 +27,6 @@ type Leads struct {
 	Branch         branch.Branch             `json:"branch"`
 	LeadCategoryId string                    `json:"lead_category_id" gorm:"type:string;size:100"`
 	LeadCategory   leadCategory.LeadCategory `json:"lead_category"`
-	ProductId      string                    `json:"product_id"       gorm:"type:string;size:100"`
 	Client         bool                      `json:"client"           gorm:"type:boolean;index:idx_client"`
 	CreatedAt      time.Time                 `json:"created_at"`
 	UpdatedAt      time.Time                 `json:"updated_at"`
