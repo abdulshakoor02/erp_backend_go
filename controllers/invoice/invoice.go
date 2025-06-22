@@ -18,6 +18,7 @@ type CreateInvoice struct {
 	LeadId     string                          `json:"lead_id"`
 	Total      float64                         `json:"total"`
 	AmountPaid float64                         `json:"amount_paid"`
+	Discount   float64                         `json:"discount"`
 	TenantId   string                          `json:"tenant_id"`
 	Products   []orderedProduct.OrderedProduct `json:"products"`
 }
@@ -59,7 +60,7 @@ func Create(c *fiber.Ctx) error {
 
 	Invoice.AmountPaid = Payload.AmountPaid
 	Invoice.Total = Payload.Total
-	Invoice.PendingAmount = Payload.Total - Payload.AmountPaid
+	Invoice.PendingAmount = Payload.Total - Payload.AmountPaid - Payload.Discount
 	Invoice.LeadId = Payload.LeadId
 
 	if err := db.Create(&Invoice).Error; err != nil {

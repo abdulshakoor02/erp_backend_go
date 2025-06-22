@@ -15,6 +15,7 @@ type Invoice struct {
 	Lead          leads.Leads    `json:"leads"`
 	Total         float64        `json:"total"          gorm:"type:float"`
 	AmountPaid    float64        `json:"amount_paid"    gorm:"type:float"`
+	Discount      float64        `json:"discount"       gorm:"type:float"`
 	PendingAmount float64        `json:"pending_amount" gorm:"type:float"`
 	TenantId      string         `json:"tenant_id"      gorm:"type:string"`
 	Tenant        tenant.Tenant  `json:"tenant"`
