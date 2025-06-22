@@ -68,7 +68,7 @@ left join employees e on e.id = l.employee_id;
 	// Create reciepts view
 	createRecieptView := `
         CREATE VIEW reciepts_view AS
-select r.id as id,r.invoice_id as invoice_id,r.amount_paid as amount_paid,i.discount as discount,
+select r.id as id,r.invoice_id as invoice_id,r.amount_paid as amount_paid,i.discount as discount,r.reciept_no as reciept_no,
 r.created_at as created_at,i.lead_id as lead_id,i.total as total,i.pending_amount as pending_amount,
 i.tenant_id as tenant_id,l."name" as lead_name,l.email as lead_email,l.mobile as lead_mobile,
 b."name" as branch_name,b.address as branch_address,b.mobile as branch_mobile
