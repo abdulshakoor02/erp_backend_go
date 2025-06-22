@@ -32,6 +32,11 @@ type OneInvoiceResponse struct {
 	Orders  []orderedProductsView.OrderedProductsView `json:"orders"`
 }
 
+type CreateInvoiceResponse struct {
+	Invoice invoice.Invoice   `json:"invoice"`
+	Reciept reciepts.Reciepts `json:"reciept"`
+}
+
 var log = logger.Logger
 
 func Create(c *fiber.Ctx) error {
@@ -83,7 +88,11 @@ func Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("failed to create reciepts")
 	}
 
-	newJSONData2, err := json.Marshal(Invoice)
+	var response CreateInvoiceResponse
+	response.Invoice = Invoice
+	response.Reciept = Reciepts
+
+	newJSONData2, err := json.Marshal(response)
 	if err != nil {
 		log.Info().Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
@@ -151,5 +160,5 @@ func FindOne(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
 
-	return c.Status(fiber.StatusBadRequest).SendString(string(newJSONData2))
+	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
 }
