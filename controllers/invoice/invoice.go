@@ -121,16 +121,19 @@ func FindOne(c *fiber.Ctx) error {
 	go func() {
 		defer wg.Done()
 		invoiceErr = db.Find(&invoice).Where("id = ?", Payload.InvoiceId).Error
+		log.Info().Msgf("fetched invoice")
 	}()
 
 	go func() {
 		defer wg.Done()
 		recieptsErr = db.Find(&reciepts).Where("id = ?", Payload.RecieptId).Error
+		log.Info().Msgf("fetched reciepts")
 	}()
 
 	go func() {
 		defer wg.Done()
 		ordrdProdsErr = db.Find(&orderdProds).Where("invoice_id = ?", Payload.InvoiceId).Error
+		log.Info().Msgf("fetched orderdProds")
 	}()
 
 	wg.Wait()
