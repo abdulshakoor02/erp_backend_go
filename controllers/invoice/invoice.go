@@ -62,6 +62,7 @@ func Create(c *fiber.Ctx) error {
 	Invoice.Total = Payload.Total
 	Invoice.PendingAmount = Payload.Total - Payload.AmountPaid - Payload.Discount
 	Invoice.LeadId = Payload.LeadId
+	Invoice.Discount = Payload.Discount
 
 	if err := db.Create(&Invoice).Error; err != nil {
 		log.Info().Msgf("failed to create invoice  %v", err)
