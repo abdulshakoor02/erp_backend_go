@@ -47,6 +47,8 @@ func MigrateDb() {
 	}
 	// Drop view if exists (optional)
 	dbAdapter.DB.Exec("DROP VIEW IF EXISTS lead_views")
+	dbAdapter.DB.Exec("DROP VIEW IF EXISTS reciepts_view")
+	dbAdapter.DB.Exec("DROP VIEW IF EXISTS ordered_products_view")
 
 	// Create view
 	createViewSQL := `
