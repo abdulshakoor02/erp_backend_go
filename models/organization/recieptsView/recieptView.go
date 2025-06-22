@@ -12,7 +12,7 @@ type RecieptView struct {
 	Total         string    `json:"total"`
 	PendingAmount string    `json:"pending_amount"`
 	Discount      string    `json:"discount"`
-	RecieptNo     int64     `json:"recipet_no"`
+	RecieptNo     int64     `json:"reciept_no"`
 	TenantId      string    `json:"tenant_id"        `
 	LeadName      string    `json:"lead_name"      `
 	LeadEmail     string    `json:"lead_email"        `
