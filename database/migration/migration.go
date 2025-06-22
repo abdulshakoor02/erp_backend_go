@@ -62,6 +62,33 @@ left join employees e on e.id = l.employee_id;
 	} else {
 		fmt.Println("lead view successfully created")
 	}
+
+	// Create reciepts view
+	createRecieptView := `
+        CREATE VIEW reciepts_view AS
+select r.id as id,r.invoice_id as invoice_id,r.amount_paid as amount_paid,
+r.created_at as created_at,i.lead_id as lead_id,i.total as total,i.pending_amount as pending_amount,
+i.tenant_id as tenant_id,l."name" as lead_name,l.email as lead_email,l.mobile as lead_mobile
+from reciepts r inner join invoices i on r.invoice_id = i.id inner join leads l on i.lead_id = l.id;
+    `
+	if err := dbAdapter.DB.Exec(createRecieptView).Error; err != nil {
+		fmt.Printf("failed to create reciepts view %v \n", err)
+	} else {
+		fmt.Println("lead view successfully created")
+	}
+
+	// Create reciepts view
+	createOrderProdView := `
+        CREATE VIEW ordered_products_view AS
+select op.quantity as quantity,op.invoice_id as invoice_id,op.product_id as product_id,op.id as id,p."desc" as product_desc,
+op.created_at as created_at,p.price as product_price,p."name" as product_name
+from ordered_products op inner join products p on op.product_id = p.id;
+    `
+	if err := dbAdapter.DB.Exec(createOrderProdView).Error; err != nil {
+		fmt.Printf("failed to create orderd products view %v \n", err)
+	} else {
+		fmt.Println("lead view successfully created")
+	}
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Region")
 	// dbAdapter.DB.Migrator().CreateConstraint(&designation.Designation{}, "Tenant")

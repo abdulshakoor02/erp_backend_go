@@ -7,8 +7,10 @@ import (
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
 	"github.com/abdul/erp_backend/models/organization/invoice"
+	"github.com/abdul/erp_backend/models/organization/orderProductsView"
 	"github.com/abdul/erp_backend/models/organization/orderedProduct"
 	"github.com/abdul/erp_backend/models/organization/reciepts"
+	"github.com/abdul/erp_backend/models/organization/recieptsView"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,9 +28,8 @@ type GetOneInvoice struct {
 }
 
 type OneInvoiceResponse struct {
-	Invoice invoice.Invoice                 `json:"invoice"`
-	Reciept reciepts.Reciepts               `json:"reciept"`
-	Orders  []orderedProduct.OrderedProduct `json:"orders"`
+	Reciept recieptView.RecieptView                   `json:"reciept"`
+	Orders  []orderedProductsView.OrderedProductsView `json:"orders"`
 }
 
 var log = logger.Logger
@@ -108,40 +109,29 @@ func FindOne(c *fiber.Ctx) error {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(2)
 
 	var (
-		invoice     []invoice.Invoice
-		reciepts    []reciepts.Reciepts
-		orderdProds []orderedProduct.OrderedProduct
+		reciepts    []recieptView.RecieptView
+		orderdProds []orderedProductsView.OrderedProductsView
 
-		invoiceErr, recieptsErr, ordrdProdsErr error
+		recieptsErr, ordrdProdsErr error
 	)
 
 	go func() {
 		defer wg.Done()
-		invoiceErr = db.Find(&invoice).Where("id = ?", Payload.InvoiceId).Error
-		log.Info().Msgf("fetched invoice")
-	}()
-
-	go func() {
-		defer wg.Done()
-		recieptsErr = db.Find(&reciepts).Where("id = ?", Payload.RecieptId).Error
+		recieptsErr = db.Table("reciepts_view").Find(&reciepts).Where("id = ?", Payload.RecieptId).Error
 		log.Info().Msgf("fetched reciepts")
 	}()
 
 	go func() {
 		defer wg.Done()
-		ordrdProdsErr = db.Find(&orderdProds).Where("invoice_id = ?", Payload.InvoiceId).Error
+		ordrdProdsErr = db.Table("ordered_products_view").Find(&orderdProds).Where("invoice_id = ?", Payload.InvoiceId).Error
 		log.Info().Msgf("fetched orderdProds")
 	}()
 
 	wg.Wait()
 	// Check errors after all goroutines finish
-	if invoiceErr != nil {
-		log.Info().Msgf("failed to  invoice  %v", invoiceErr)
-		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
-	}
 	if recieptsErr != nil {
 		log.Info().Msgf("failed to create invoice  %v", recieptsErr)
 		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
@@ -152,7 +142,6 @@ func FindOne(c *fiber.Ctx) error {
 	}
 
 	var response OneInvoiceResponse
-	response.Invoice = invoice[0]
 	response.Reciept = reciepts[0]
 	response.Orders = orderdProds
 
