@@ -74,7 +74,7 @@ from reciepts r inner join invoices i on r.invoice_id = i.id inner join leads l 
 	if err := dbAdapter.DB.Exec(createRecieptView).Error; err != nil {
 		fmt.Printf("failed to create reciepts view %v \n", err)
 	} else {
-		fmt.Println("lead view successfully created")
+		fmt.Println("reciepts view successfully created")
 	}
 
 	// Create reciepts view
@@ -87,7 +87,7 @@ from ordered_products op inner join products p on op.product_id = p.id;
 	if err := dbAdapter.DB.Exec(createOrderProdView).Error; err != nil {
 		fmt.Printf("failed to create orderd products view %v \n", err)
 	} else {
-		fmt.Println("lead view successfully created")
+		fmt.Println("orderd products view successfully created")
 	}
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Region")
