@@ -2,7 +2,6 @@ package invoiceController
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/abdul/erp_backend/database/dbAdapter"
