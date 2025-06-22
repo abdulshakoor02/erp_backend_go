@@ -133,6 +133,7 @@ func FindOne(c *fiber.Ctx) error {
 		ordrdProdsErr = db.Find(&orderdProds).Where("invoice_id = ?", Payload.InvoiceId).Error
 	}()
 
+	wg.Wait()
 	// Check errors after all goroutines finish
 	if invoiceErr != nil {
 		log.Info().Msgf("failed to  invoice  %v", invoiceErr)
