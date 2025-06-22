@@ -11,6 +11,7 @@ type RecieptView struct {
 	LeadId        string    `json:"lead_id"`
 	Total         string    `json:"total"`
 	PendingAmount string    `json:"pending_amount"`
+	Discount      string    `json:"discount"`
 	TenantId      string    `json:"tenant_id"        `
 	LeadName      string    `json:"lead_name"      `
 	LeadEmail     string    `json:"lead_email"        `
