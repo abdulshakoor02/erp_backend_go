@@ -1,4 +1,4 @@
-package recieptView 
+package recieptView
 
 import (
 	"time"
@@ -15,5 +15,8 @@ type RecieptView struct {
 	LeadName      string    `json:"lead_name"      `
 	LeadEmail     string    `json:"lead_email"        `
 	LeadMobile    string    `json:"lead_mobile" `
+	BranchName    string    `json:"branch_name" `
+	BranchMobile  string    `json:"branch_mobile" `
+	BranchAddress string    `json:"branch_address" `
 	CreatedAt     time.Time `json:"created_at"`
 }
