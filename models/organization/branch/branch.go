@@ -9,12 +9,12 @@ import (
 )
 
 type Branch struct {
-	ID         string `json:"id"         gorm:"type:string;size:100;primary_key;default:gen_random_uuid()"`
-	Name       string `json:"name"       gorm:"type:string;size:100"`
-	Mobile     string `json:"mobile"     gorm:"type:string;size:100;unique"`
-	Email      string `json:"email"      gorm:"type:string;size:300;unique"`
-	RegionId   string `json:"region_id"`
-	Region     region.Region
+	ID         string          `json:"id"         gorm:"type:string;size:100;primary_key;default:gen_random_uuid()"`
+	Name       string          `json:"name"       gorm:"type:string;size:100"`
+	Mobile     string          `json:"mobile"     gorm:"type:string;size:100;unique"`
+	Email      string          `json:"email"      gorm:"type:string;size:300;unique"`
+	RegionId   string          `json:"region_id"`
+	Region     region.Region   `json:"region"`
 	Website    string          `json:"website"    gorm:"type:string;size:100"`
 	CountryId  string          `json:"country_id"`
 	Country    country.Country `json:"country"`
