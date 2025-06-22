@@ -71,7 +71,7 @@ left join employees e on e.id = l.employee_id;
 select r.id as id,r.invoice_id as invoice_id,r.amount_paid as amount_paid,
 r.created_at as created_at,i.lead_id as lead_id,i.total as total,i.pending_amount as pending_amount,
 i.tenant_id as tenant_id,l."name" as lead_name,l.email as lead_email,l.mobile as lead_mobile,
-b."name",b.address,b.mobile
+b."name" as branch_name,b.address as branch_address,b.mobile as branch_mobile
 from reciepts r inner join invoices i on r.invoice_id = i.id inner join leads l on i.lead_id = l.id inner join branches b  on l.branch_id = b.id;
     `
 	if err := dbAdapter.DB.Exec(createRecieptView).Error; err != nil {
