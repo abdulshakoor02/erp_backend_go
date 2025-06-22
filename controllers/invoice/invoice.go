@@ -3,6 +3,7 @@ package invoiceController
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
@@ -20,12 +21,22 @@ type CreateInvoice struct {
 	Products   []orderedProduct.OrderedProduct `json:"products"`
 }
 
+type GetOneInvoice struct {
+	InvoiceId string `json:"invoice_id"`
+	RecieptId string `json:"reciept_id"`
+}
+
+type OneInvoiceResponse struct {
+	Invoice invoice.Invoice                 `json:"invoice"`
+	Reciept reciepts.Reciepts               `json:"reciept"`
+	Orders  []orderedProduct.OrderedProduct `json:"orders"`
+}
+
 var log = logger.Logger
 
 func Create(c *fiber.Ctx) error {
 	db := dbAdapter.DB
 	var Payload CreateInvoice
-	fmt.Print("here")
 	err := json.Unmarshal(c.Body(), &Payload)
 	if err != nil {
 		log.Info().Msgf("error  %v", err)
@@ -81,7 +92,72 @@ func Create(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
 }
 
-// func Find(c *fiber.Ctx) error {
-//
-// 	return genericHandler.FindHandler[additionalInfo.AdditionalInfo](c)
-// }
+func FindOne(c *fiber.Ctx) error {
+	db := dbAdapter.DB
+	var Payload GetOneInvoice
+	err := json.Unmarshal(c.Body(), &Payload)
+	if err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+	tenantId := c.Locals("tenant_id")
+
+	tenant_id, ok := tenantId.(string)
+	if ok && tenant_id != "" {
+	} else {
+		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	var (
+		invoice     []invoice.Invoice
+		reciepts    []reciepts.Reciepts
+		orderdProds []orderedProduct.OrderedProduct
+
+		invoiceErr, recieptsErr, ordrdProdsErr error
+	)
+
+	go func() {
+		defer wg.Done()
+		invoiceErr = db.Find(&invoice).Where("id = ?", Payload.InvoiceId).Error
+	}()
+
+	go func() {
+		defer wg.Done()
+		recieptsErr = db.Find(&reciepts).Where("id = ?", Payload.RecieptId).Error
+	}()
+
+	go func() {
+		defer wg.Done()
+		ordrdProdsErr = db.Find(&orderdProds).Where("invoice_id = ?", Payload.InvoiceId).Error
+	}()
+
+	// Check errors after all goroutines finish
+	if invoiceErr != nil {
+		log.Info().Msgf("failed to  invoice  %v", invoiceErr)
+		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
+	}
+	if recieptsErr != nil {
+		log.Info().Msgf("failed to create invoice  %v", recieptsErr)
+		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
+	}
+	if ordrdProdsErr != nil {
+		log.Info().Msgf("failed to create invoice  %v", ordrdProdsErr)
+		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
+	}
+
+	var response OneInvoiceResponse
+	response.Invoice = invoice[0]
+	response.Reciept = reciepts[0]
+	response.Orders = orderdProds
+
+	newJSONData2, err := json.Marshal(response)
+	if err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+
+	return c.Status(fiber.StatusBadRequest).SendString(string(newJSONData2))
+}
