@@ -3,6 +3,7 @@ package genericHandler
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
@@ -48,6 +49,8 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	// Get the authorization header
 	// authHeader := c.Get("Authorization")
 
+	var wg sync.WaitGroup
+
 	type Query struct {
 		Column   string `json:"column"`
 		Operator string `json:"operator"`
@@ -77,30 +80,44 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	// Use the gorm.Statement to exclude certain fields from the Where clause
 	var result []T
 
+	var countErr, resultErr error
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		countErr = db.Model(&result).Where(&genericData.Where).Count(&Count).Error
+	}()
+
+	go func() {
+		defer wg.Done()
+		if int(genericData.Limit) != 0 {
+			db = db.Limit(int(genericData.Limit)).
+				Offset(int(genericData.Offset)).
+				Where(&genericData.Where)
+		} else {
+			// db = db.Where(&genericData.Where).Find(&result)
+			db = db.Where(&genericData.Where)
+		}
+
+		if genericData.OrderBy != "" {
+			db = db.Order(genericData.OrderBy)
+		}
+
+		resultErr = db.Find(&result).Error
+	}()
+
+	wg.Wait()
+
 	if err := db.Model(&result).Where(&genericData.Where).Count(&Count).Error; err != nil {
 		log.Info().Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
 	db = dbAdapter.DB
-
-	if int(genericData.Limit) != 0 {
-		db = db.Limit(int(genericData.Limit)).
-			Offset(int(genericData.Offset)).
-			Where(&genericData.Where)
-	} else {
-		// db = db.Where(&genericData.Where).Find(&result)
-		db = db.Where(&genericData.Where)
-	}
-
-	if genericData.OrderBy != "" {
-		db = db.Order(genericData.OrderBy)
-	}
-
-	if err := db.Find(&result).Error; err != nil {
-		log.Err(err).Msgf("error  %v", err)
+	if countErr != nil || resultErr != nil {
+		log.Err(countErr).Err(resultErr).Msg("Query error")
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
-
 	response.Count = Count
 	response.Data = result
 
