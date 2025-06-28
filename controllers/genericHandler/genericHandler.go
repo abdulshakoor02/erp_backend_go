@@ -47,6 +47,13 @@ func CreateHandler[T any](c *fiber.Ctx) error {
 func FindHandler[T any](c *fiber.Ctx) error {
 	// Get the authorization header
 	// authHeader := c.Get("Authorization")
+
+	type Query struct {
+		Column   string `json:"column"`
+		Operator string `json:"operator"`
+		Value    string `json:"value"`
+	}
+
 	var response struct {
 		Data  []T   `json:"data"`
 		Count int64 `json:"count"`
@@ -55,6 +62,7 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	// Get the JSON object from the body
 	var genericData struct {
 		Where   T
+		Find    []Query `json:"find"`
 		Limit   int32
 		Offset  int32
 		OrderBy string

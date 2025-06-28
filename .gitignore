@@ -3,3 +3,7 @@ app
 .env
 erp_backend.log
 tmp/
+
+# testing files ignored
+test
+*coverage*
