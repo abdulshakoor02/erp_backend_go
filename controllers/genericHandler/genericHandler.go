@@ -131,11 +131,6 @@ func FindHandler[T any](c *fiber.Ctx) error {
 
 	wg.Wait()
 
-	if err := db.Model(&result).Where(&genericData.Where).Count(&Count).Error; err != nil {
-		log.Info().Msgf("error  %v", err)
-		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
-	}
-	db = dbAdapter.DB
 	if countErr != nil || resultErr != nil {
 		log.Err(countErr).Err(resultErr).Msg("Query error")
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
