@@ -109,9 +109,9 @@ from ordered_products op inner join products p on op.product_id = p.id;
     $$;
     `
 	if err := dbAdapter.DB.Exec(createFeatureIndex).Error; err != nil {
-		fmt.Printf("failed to create orderd products view %v \n", err)
+		fmt.Printf("failed to create features name index %v \n", err)
 	} else {
-		fmt.Println("orderd products view successfully created")
+		fmt.Println("features name index successfully created")
 	}
 
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
