@@ -86,11 +86,34 @@ func FindHandler[T any](c *fiber.Ctx) error {
 
 	go func() {
 		defer wg.Done()
+
+		for i, v := range genericData.Find {
+			if i == 0 {
+				cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
+				fmt.Println(cols, v.Value)
+				db = db.Where(cols, v.Value)
+				continue
+			}
+			cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
+			fmt.Println(cols, v.Value)
+			db = db.Or(cols, v.Value)
+		}
 		countErr = db.Model(&result).Where(&genericData.Where).Count(&Count).Error
 	}()
 
 	go func() {
 		defer wg.Done()
+		for i, v := range genericData.Find {
+			if i == 0 {
+				cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
+				fmt.Println(cols, v.Value)
+				db = db.Where(cols, v.Value)
+				continue
+			}
+			cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
+			fmt.Println(cols, v.Value)
+			db = db.Or(cols, v.Value)
+		}
 		if int(genericData.Limit) != 0 {
 			db = db.Limit(int(genericData.Limit)).
 				Offset(int(genericData.Offset)).
