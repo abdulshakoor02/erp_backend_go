@@ -93,6 +93,27 @@ from ordered_products op inner join products p on op.product_id = p.id;
 	} else {
 		fmt.Println("orderd products view successfully created")
 	}
+
+	// Create features index
+	createFeatureIndex := `
+  DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_indexes 
+            WHERE tablename = 'features' AND indexname = 'idx_trgm_features_name'
+        ) THEN
+            CREATE INDEX idx_trgm_features_name 
+            ON features USING gin (name gin_trgm_ops);
+        END IF;
+    END
+    $$;
+    `
+	if err := dbAdapter.DB.Exec(createFeatureIndex).Error; err != nil {
+		fmt.Printf("failed to create orderd products view %v \n", err)
+	} else {
+		fmt.Println("orderd products view successfully created")
+	}
+
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Region")
 	// dbAdapter.DB.Migrator().CreateConstraint(&designation.Designation{}, "Tenant")
