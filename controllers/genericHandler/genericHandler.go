@@ -76,7 +76,6 @@ func FindHandler[T any](c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
 
-	db := dbAdapter.DB
 	// Use the gorm.Statement to exclude certain fields from the Where clause
 	var result []T
 
@@ -87,15 +86,14 @@ func FindHandler[T any](c *fiber.Ctx) error {
 	go func() {
 		defer wg.Done()
 
+		db := dbAdapter.DB
 		for i, v := range genericData.Find {
 			if i == 0 {
 				cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
-				fmt.Println(cols, v.Value)
 				db = db.Where(cols, v.Value)
 				continue
 			}
 			cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
-			fmt.Println(cols, v.Value)
 			db = db.Or(cols, v.Value)
 		}
 		countErr = db.Model(&result).Where(&genericData.Where).Count(&Count).Error
@@ -103,15 +101,16 @@ func FindHandler[T any](c *fiber.Ctx) error {
 
 	go func() {
 		defer wg.Done()
+
+		db := dbAdapter.DB
+
 		for i, v := range genericData.Find {
 			if i == 0 {
 				cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
-				fmt.Println(cols, v.Value)
 				db = db.Where(cols, v.Value)
 				continue
 			}
 			cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
-			fmt.Println(cols, v.Value)
 			db = db.Or(cols, v.Value)
 		}
 		if int(genericData.Limit) != 0 {
