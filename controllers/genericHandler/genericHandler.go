@@ -308,7 +308,8 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
 		db.Where(clause, tenantId)
 	}
-	db.Where(genericData.Find)
+
+	db = db.Where(genericData.Find)
 
 	if err := db.Count(&Count).Error; err != nil {
 		log.Info().Msgf("error  %v", err)
@@ -323,7 +324,6 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	db = db.Model(&result)
 
-	db.Where(genericData.Find)
 	for _, v := range genericData.Joins {
 		db = db.InnerJoins(v.Column)
 
@@ -357,11 +357,8 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		db = db.Order(genericData.OrderBy)
 	}
 
-	newJSONData5, err := json.Marshal(genericData.Find)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	log.Info().Msgf("find  %v", string(newJSONData5))
+	db = db.Where(genericData.Find)
+
 	if err := db.Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
