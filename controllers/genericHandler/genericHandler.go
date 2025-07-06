@@ -257,7 +257,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	var genericData struct {
 		Column  string
 		OrderBy string
-		Find    T
+		Find    map[string]any
 		Where   []Query
 		Joins   []Associated
 		Limit   int32
@@ -307,6 +307,10 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	if tenantId != "" && genericData.Column != "" {
 		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
 		db = db.Where(clause, tenantId)
+	}
+
+	for key, value := range genericData.Find {
+		log.Info().Msgf("key %v value %v", key, value)
 	}
 
 	db = db.Where(genericData.Find)
