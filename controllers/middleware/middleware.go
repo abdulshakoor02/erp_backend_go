@@ -72,6 +72,7 @@ func AuthHandler(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString("invalid request")
 		}
 		c.Locals("tenant_id", resp.TenantId)
+		log.Info().Msgf("tenant id : %v for the current request\n", resp.TenantId)
 
 		if resp.Email != "" {
 			var featureList []rolefeaturesController.RoleFeatures
