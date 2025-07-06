@@ -357,7 +357,11 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	}
 
 	db.Where(genericData.Find)
-	log.Info().Msgf("find  %v", genericData.Find)
+	newJSONData5, err := json.Marshal(genericData.Find)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	log.Info().Msgf("find  %v", string(newJSONData5))
 	if err := db.Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
