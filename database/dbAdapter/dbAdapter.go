@@ -2,29 +2,29 @@ package dbAdapter
 
 import (
 	"fmt"
-	// "log"
-	// "os"
-	// "time"
+	"log"
+	"os"
+	"time"
 
 	"github.com/abdul/erp_backend/config"
 	"github.com/abdul/erp_backend/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	// logging "gorm.io/gorm/logger"
+	logging "gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
 
 func DbConnect() *gorm.DB {
-	// newLogger := logging.New(
-	// 	log.New(os.Stdout, "\r\n", log.LstdFlags), // Output to standard output
-	// 	logging.Config{
-	// 		SlowThreshold:             time.Second,  // Log slow SQL queries over a second
-	// 		LogLevel:                  logging.Info, // Log level set to Info to log all queries
-	// 		IgnoreRecordNotFoundError: true,         // Ignore RecordNotFoundError logs
-	// 		Colorful:                  false,        // Disable color output (optional)
-	// 	},
-	// )
+	newLogger := logging.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // Output to standard output
+		logging.Config{
+			SlowThreshold:             time.Second,  // Log slow SQL queries over a second
+			LogLevel:                  logging.Info, // Log level set to Info to log all queries
+			IgnoreRecordNotFoundError: true,         // Ignore RecordNotFoundError logs
+			Colorful:                  false,        // Disable color output (optional)
+		},
+	)
 	log := logger.Logger
 	config.LoadEnv()
 
@@ -41,7 +41,7 @@ func DbConnect() *gorm.DB {
 	)
 	// dsn := "abdul:sh@k00oor@tcp(172.17.0.1:5432)/erp_backend?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		// Logger: newLogger,
+		Logger: newLogger,
 	})
 	if err != nil {
 		fmt.Print(err)
