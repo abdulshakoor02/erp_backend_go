@@ -22,6 +22,7 @@ func UploadHandler(c *fiber.Ctx) error {
 	fileName := c.Get("filename")
 	folder := c.Get("folder")
 	tenant_id := c.Get("tenant_id")
+	log.Info().Msgf(" uploading logo for tenant id: %v", tenant_id)
 	if fileName == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("Missing file name")
 	}
