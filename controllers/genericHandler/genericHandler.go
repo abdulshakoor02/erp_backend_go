@@ -8,6 +8,7 @@ import (
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -291,17 +292,22 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 			db = db.Where(cols, v2)
 		}
 	}
+	var orCondCount *gorm.DB
 
 	for i, v := range genericData.Where {
 		if i == 0 {
 			cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
 			fmt.Println(cols, v.Value)
-			db = db.Where(cols, v.Value)
+			orCondCount = db.Where(cols, v.Value)
 			continue
 		}
 		cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
 		fmt.Println(cols, v.Value)
-		db = db.Or(cols, v.Value)
+		orCondCount = db.Or(cols, v.Value)
+	}
+
+	if orCondCount != nil {
+		db = db.Where(orCondCount)
 	}
 
 	if tenantId != "" && genericData.Column != "" {
@@ -342,14 +348,20 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		}
 	}
 
+	var orCondRes *gorm.DB
+
 	for i, v := range genericData.Where {
 		if i == 0 {
 			cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
-			db = db.Where(cols, v.Value)
+			orCondRes = db.Where(cols, v.Value)
 			continue
 		}
 		cols := fmt.Sprintf("%v %v ?", v.Column, v.Operator)
-		db = db.Or(cols, v.Value)
+		orCondRes = db.Or(cols, v.Value)
+	}
+
+	if orCondRes != nil {
+		db = db.Where(orCondRes)
 	}
 
 	if tenantId != "" && genericData.Column != "" {
