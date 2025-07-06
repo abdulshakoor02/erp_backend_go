@@ -306,7 +306,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	if tenantId != "" && genericData.Column != "" {
 		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
-		db.Where(clause, tenantId)
+		db = db.Where(clause, tenantId)
 	}
 
 	db = db.Where(genericData.Find)
@@ -346,7 +346,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	if tenantId != "" && genericData.Column != "" {
 		clause := fmt.Sprintf("\"%v\".\"tenant_id\" = ? ", genericData.Column)
-		db.Where(clause, tenantId)
+		db = db.Where(clause, tenantId)
 	}
 
 	if genericData.Limit != 0 {
@@ -359,7 +359,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	db = db.Where(genericData.Find)
 
-	if err := db.Where(&genericData.Find).Find(&result).Error; err != nil {
+	if err := db.Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
