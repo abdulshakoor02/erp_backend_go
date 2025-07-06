@@ -310,10 +310,10 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 	}
 
 	for key, value := range genericData.Find {
+		clause := fmt.Sprintf("\"%v\".\"%v\" = ? ", genericData.Column, key)
+		db = db.Where(clause, value)
 		log.Info().Msgf("key %v value %v", key, value)
 	}
-
-	db = db.Where(genericData.Find)
 
 	if err := db.Count(&Count).Error; err != nil {
 		log.Info().Msgf("error  %v", err)
@@ -361,7 +361,11 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		db = db.Order(genericData.OrderBy)
 	}
 
-	db = db.Where(genericData.Find)
+	for key, value := range genericData.Find {
+		clause := fmt.Sprintf("\"%v\".\"%v\" = ? ", genericData.Column, key)
+		db = db.Where(clause, value)
+		log.Info().Msgf("key %v value %v", key, value)
+	}
 
 	if err := db.Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
