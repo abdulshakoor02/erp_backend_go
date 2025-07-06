@@ -323,6 +323,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	db = db.Model(&result)
 
+	db.Where(genericData.Find)
 	for _, v := range genericData.Joins {
 		db = db.InnerJoins(v.Column)
 
@@ -356,7 +357,6 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 		db = db.Order(genericData.OrderBy)
 	}
 
-	db.Where(genericData.Find)
 	newJSONData5, err := json.Marshal(genericData.Find)
 	if err != nil {
 		fmt.Println("Error:", err)
