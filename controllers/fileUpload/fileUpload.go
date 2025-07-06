@@ -19,6 +19,12 @@ type DownloadUrl struct {
 
 func UploadHandler(c *fiber.Ctx) error {
 	// Get the filename from the custom header
+	headers := c.GetReqHeaders();
+
+	for key, value := range headers {
+		fmt.Println(key,value)
+	}
+
 	fileName := c.Get("filename")
 	folder := c.Get("folder")
 	tenant_id := c.Get("tenant_id")
