@@ -359,7 +359,7 @@ func FindAssociatedHandler[T any](c *fiber.Ctx) error {
 
 	db = db.Where(genericData.Find)
 
-	if err := db.Find(&result).Where(&genericData.Find).Error; err != nil {
+	if err := db.Where(&genericData.Find).Find(&result).Error; err != nil {
 		log.Err(err).Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("error could not process the query")
 	}
