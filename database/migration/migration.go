@@ -2,6 +2,7 @@ package migration
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/models/organization/additionalInfo"
@@ -50,8 +51,12 @@ func MigrateDb() {
 	dbAdapter.DB.Exec("DROP VIEW IF EXISTS reciepts_view")
 	dbAdapter.DB.Exec("DROP VIEW IF EXISTS ordered_products_view")
 
+	var wg sync.WaitGroup
+
 	// Create view
-	createViewSQL := `
+	wg.Add(1)
+	go func() {
+		createViewSQL := `
         CREATE VIEW lead_views AS
 select  l.*,c."name" as country_name,c.currency_symbol,c.currency,
 b."name" as branch_name,b.mobile as branch_mobile,b.email as branch_email ,b.website ,b.address as branch_address,b.tax,
@@ -59,14 +64,18 @@ lc."name" as category_name , e.first_name as employee_name  from leads l left jo
 left join countries c on c.id = l.country_id left join lead_categories lc on lc.id = l.lead_category_id 
 left join employees e on e.id = l.employee_id;
     `
-	if err := dbAdapter.DB.Exec(createViewSQL).Error; err != nil {
-		fmt.Printf("failed to create lead view %v \n", err)
-	} else {
-		fmt.Println("lead view successfully created")
-	}
+		if err := dbAdapter.DB.Exec(createViewSQL).Error; err != nil {
+			fmt.Printf("failed to create lead view %v \n", err)
+		} else {
+			fmt.Println("lead view successfully created")
+		}
+		wg.Done()
+	}()
 
 	// Create reciepts view
-	createRecieptView := `
+	wg.Add(1)
+	go func() {
+		createRecieptView := `
         CREATE VIEW reciepts_view AS
 select r.id as id,r.invoice_id as invoice_id,r.amount_paid as amount_paid,i.discount as discount,r.reciept_no as reciept_no,
 r.created_at as created_at,i.lead_id as lead_id,i.total as total,i.pending_amount as pending_amount,
@@ -75,11 +84,13 @@ b."name" as branch_name,b.address as branch_address,b.mobile as branch_mobile,c.
 from reciepts r inner join invoices i on r.invoice_id = i.id inner join leads l on i.lead_id = l.id inner join branches b  on l.branch_id = b.id
 inner join countries c on b.country_id = c.id;
     `
-	if err := dbAdapter.DB.Exec(createRecieptView).Error; err != nil {
-		fmt.Printf("failed to create reciepts view %v \n", err)
-	} else {
-		fmt.Println("reciepts view successfully created")
-	}
+		if err := dbAdapter.DB.Exec(createRecieptView).Error; err != nil {
+			fmt.Printf("failed to create reciepts view %v \n", err)
+		} else {
+			fmt.Println("reciepts view successfully created")
+		}
+		wg.Done()
+	}()
 
 	// Create reciepts view
 	createOrderProdView := `
@@ -95,7 +106,10 @@ from ordered_products op inner join products p on op.product_id = p.id;
 	}
 
 	// Create features index
-	createFeatureIndex := `
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		createFeatureIndex := `
   DO $$
     BEGIN
         IF NOT EXISTS (
@@ -108,11 +122,14 @@ from ordered_products op inner join products p on op.product_id = p.id;
     END
     $$;
     `
-	if err := dbAdapter.DB.Exec(createFeatureIndex).Error; err != nil {
-		fmt.Printf("failed to create features name index %v \n", err)
-	} else {
-		fmt.Println("features name index successfully created")
-	}
+		if err := dbAdapter.DB.Exec(createFeatureIndex).Error; err != nil {
+			fmt.Printf("failed to create features name index %v \n", err)
+		} else {
+			fmt.Println("features name index successfully created")
+		}
+	}()
+
+	wg.Wait()
 
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Country")
 	// dbAdapter.DB.Migrator().CreateConstraint(&branch.Branch{}, "Region")

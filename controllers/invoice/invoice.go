@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
+	"github.com/abdul/erp_backend/controllers/genericHandler"
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
 	"github.com/abdul/erp_backend/models/organization/invoice"
@@ -163,4 +164,9 @@ func FindOne(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
+}
+
+func FindReciepts(c *fiber.Ctx) error {
+
+	return genericHandler.FindHandler[recieptView.RecieptView](c)
 }

@@ -146,6 +146,7 @@ func main() {
 	//invoice
 	app.Post("/invoice/create", invoiceController.Create)
 	app.Post("/invoice/findone", invoiceController.FindOne)
+	app.Post("/invoice/find", invoiceController.FindReciepts)
 
 	log.Info().Msgf("listening on port %v", port)
 	app.Listen(port)
