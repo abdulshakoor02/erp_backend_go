@@ -105,7 +105,6 @@ func Create(c *fiber.Ctx) error {
 }
 
 func FindOne(c *fiber.Ctx) error {
-	db := dbAdapter.DB
 	var Payload GetOneInvoice
 	err := json.Unmarshal(c.Body(), &Payload)
 	if err != nil {
@@ -170,7 +169,6 @@ func FindOne(c *fiber.Ctx) error {
 
 func FindReciepts(c *fiber.Ctx) error {
 	var where map[string]interface{}
-	db := dbAdapter.DB
 
 	err := json.Unmarshal(c.Body(), &where)
 	if err != nil {
