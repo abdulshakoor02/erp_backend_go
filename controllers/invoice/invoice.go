@@ -175,6 +175,13 @@ func FindReciepts(c *fiber.Ctx) error {
 		log.Info().Msgf("error  %v", err)
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
+
+	data, err := json.Marshal(where)
+	if err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+	fmt.Println(string(data))
 	tenantId := c.Locals("tenant_id")
 
 	tenant_id, ok := tenantId.(string)
@@ -200,7 +207,7 @@ func FindReciepts(c *fiber.Ctx) error {
 			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
 			db = db.Where(clause, value)
 		}
-		recieptsErr = db.Table("reciepts_view").Count(&count).Error
+		countErr = db.Table("reciepts_view").Count(&count).Error
 		log.Info().Msgf("fetched reciepts")
 	}()
 
@@ -208,6 +215,7 @@ func FindReciepts(c *fiber.Ctx) error {
 		defer wg.Done()
 
 		for key, value := range where {
+			fmt.Println(key, value)
 			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
 			db = db.Where(clause, value)
 		}
@@ -221,6 +229,7 @@ func FindReciepts(c *fiber.Ctx) error {
 		log.Info().Msgf("failed to fetch invoice  %v", recieptsErr)
 		return c.Status(fiber.StatusBadRequest).SendString("unable to fetch invoice")
 	}
+
 	if countErr != nil {
 		log.Info().Msgf("failed to fetch invoice count  %v", countErr)
 		return c.Status(fiber.StatusBadRequest).SendString("unable to fetch count")
