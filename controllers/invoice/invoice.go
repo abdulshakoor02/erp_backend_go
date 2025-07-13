@@ -132,12 +132,14 @@ func FindOne(c *fiber.Ctx) error {
 
 	go func() {
 		defer wg.Done()
+		db := dbAdapter.DB
 		recieptsErr = db.Table("reciepts_view").Where("id = ?", Payload.RecieptId).Find(&reciepts).Error
 		log.Info().Msgf("fetched reciepts")
 	}()
 
 	go func() {
 		defer wg.Done()
+		db := dbAdapter.DB
 		ordrdProdsErr = db.Table("ordered_products_view").Where("invoice_id = ?", Payload.InvoiceId).Find(&orderdProds).Error
 		log.Info().Msgf("fetched orderdProds")
 	}()
@@ -203,17 +205,19 @@ func FindReciepts(c *fiber.Ctx) error {
 	go func() {
 		defer wg.Done()
 
+		db := dbAdapter.DB
 		for key, value := range where {
 			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
 			db = db.Where(clause, value)
 		}
 		countErr = db.Table("reciepts_view").Count(&count).Error
-		log.Info().Msgf("fetched reciepts")
+		log.Info().Msgf("fetched reciepts count")
 	}()
 
 	go func() {
 		defer wg.Done()
 
+		db := dbAdapter.DB
 		for key, value := range where {
 			fmt.Println(key, value)
 			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
@@ -235,8 +239,8 @@ func FindReciepts(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("unable to fetch count")
 	}
 	var response struct {
-		Count int64
-		Data  []recieptView.RecieptView
+		Count int64                     `json:"count"`
+		Data  []recieptView.RecieptView `json:"rows"`
 	}
 
 	response.Count = count
