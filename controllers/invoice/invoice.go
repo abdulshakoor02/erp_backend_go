@@ -176,12 +176,6 @@ func FindReciepts(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
 	}
 
-	data, err := json.Marshal(where)
-	if err != nil {
-		log.Info().Msgf("error  %v", err)
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
-	}
-	fmt.Println(string(data))
 	tenantId := c.Locals("tenant_id")
 
 	tenant_id, ok := tenantId.(string)
@@ -217,7 +211,6 @@ func FindReciepts(c *fiber.Ctx) error {
 
 		db := dbAdapter.DB
 		for key, value := range where {
-			fmt.Println(key, value)
 			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
 			db = db.Where(clause, value)
 		}
@@ -238,7 +231,7 @@ func FindReciepts(c *fiber.Ctx) error {
 	}
 	var response struct {
 		Count int64                     `json:"count"`
-		Data  []recieptView.RecieptView `json:"rows"`
+		Data  []recieptView.RecieptView `json:"data"`
 	}
 
 	response.Count = count
