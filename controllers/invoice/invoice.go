@@ -2,6 +2,7 @@ package invoiceController
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/abdul/erp_backend/controllers/genericHandler"
@@ -167,6 +168,81 @@ func FindOne(c *fiber.Ctx) error {
 }
 
 func FindReciepts(c *fiber.Ctx) error {
+	var where map[string]interface{}
+	db := dbAdapter.DB
 
-	return genericHandler.FindHandler[recieptView.RecieptView](c)
+	err := json.Unmarshal(c.Body(), &where)
+	if err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+	tenantId := c.Locals("tenant_id")
+
+	tenant_id, ok := tenantId.(string)
+	if ok && tenant_id != "" {
+	} else {
+		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	var (
+		reciepts []recieptView.RecieptView
+		count    int64
+
+		recieptsErr, countErr error
+	)
+
+	go func() {
+		defer wg.Done()
+
+		for key, value := range where {
+			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
+			db = db.Where(clause, value)
+		}
+		recieptsErr = db.Table("reciepts_view").Count(&count).Error
+		log.Info().Msgf("fetched reciepts")
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		for key, value := range where {
+			clause := fmt.Sprintf("\"reciepts_view\".\"%v\" = ? ", key)
+			db = db.Where(clause, value)
+		}
+		recieptsErr = db.Table("reciepts_view").Find(&reciepts).Error
+		log.Info().Msgf("fetched reciepts")
+	}()
+
+	wg.Wait()
+	// Check errors after all goroutines finish
+	if recieptsErr != nil {
+		log.Info().Msgf("failed to fetch invoice  %v", recieptsErr)
+		return c.Status(fiber.StatusBadRequest).SendString("unable to fetch invoice")
+	}
+	if countErr != nil {
+		log.Info().Msgf("failed to fetch invoice count  %v", countErr)
+		return c.Status(fiber.StatusBadRequest).SendString("unable to fetch count")
+	}
+	var response struct {
+		Count int64
+		Data  []recieptView.RecieptView
+	}
+
+	response.Count = count
+	response.Data = reciepts
+
+	// dbAdapter.DB.Find(&result)
+	newJSONData2, err := json.Marshal(response)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	// Print the JSON object and authorization header
+	// fmt.Println(string(newJSONData))
+
+	// Return a 200 OK response
+
+	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
 }
