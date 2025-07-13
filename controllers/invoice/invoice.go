@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/abdul/erp_backend/controllers/genericHandler"
 	"github.com/abdul/erp_backend/database/dbAdapter"
 	"github.com/abdul/erp_backend/logger"
 	"github.com/abdul/erp_backend/models/organization/invoice"
