@@ -27,8 +27,8 @@ type CreateInvoice struct {
 }
 
 type CreateReciept struct {
-	InvoiceId     string  `json:"invoice_id"`
-	AmountPaid    float64 `json:"amount_paid"`
+	InvoiceId  string  `json:"invoice_id"`
+	AmountPaid float64 `json:"amount_paid"`
 }
 
 type GetOneInvoice struct {
@@ -276,7 +276,7 @@ func GenerateReciept(c *fiber.Ctx) error {
 	var Invoice invoice.Invoice
 	var InvoiceData invoice.Invoice
 	db.Where("id = ?", Payload.InvoiceId).First(&Invoice)
-	pendingAmount := Invoice.AmountPaid - Payload.AmountPaid
+	pendingAmount := Invoice.Total - (Invoice.AmountPaid + Payload.AmountPaid)
 	pendingAmount = math.Max(pendingAmount, 0)
 
 	InvoiceData.AmountPaid = Payload.AmountPaid + Invoice.AmountPaid
