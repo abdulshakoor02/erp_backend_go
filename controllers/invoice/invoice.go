@@ -28,7 +28,6 @@ type CreateInvoice struct {
 
 type CreateReciept struct {
 	InvoiceId     string  `json:"invoice_id"`
-	PendingAmount float64 `json:"pending_amount"`
 	AmountPaid    float64 `json:"amount_paid"`
 }
 
