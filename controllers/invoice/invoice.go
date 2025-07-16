@@ -3,6 +3,7 @@ package invoiceController
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"sync"
 
 	"github.com/abdul/erp_backend/controllers/genericHandler"
@@ -23,6 +24,12 @@ type CreateInvoice struct {
 	Discount   float64                         `json:"discount"`
 	TenantId   string                          `json:"tenant_id"`
 	Products   []orderedProduct.OrderedProduct `json:"products"`
+}
+
+type CreateReciept struct {
+	InvoiceId     string  `json:"invoice_id"`
+	PendingAmount float64 `json:"pending_amount"`
+	AmountPaid    float64 `json:"amount_paid"`
 }
 
 type GetOneInvoice struct {
@@ -62,7 +69,9 @@ func Create(c *fiber.Ctx) error {
 
 	Invoice.AmountPaid = Payload.AmountPaid
 	Invoice.Total = Payload.Total
-	Invoice.PendingAmount = Payload.Total - Payload.AmountPaid - Payload.Discount
+	pendingAmount := Payload.Total - Payload.AmountPaid - Payload.Discount
+	pendingAmount = math.Max(pendingAmount, 0)
+	Invoice.PendingAmount = pendingAmount
 	Invoice.LeadId = Payload.LeadId
 	Invoice.Discount = Payload.Discount
 
@@ -254,4 +263,66 @@ func FindReciepts(c *fiber.Ctx) error {
 func FindInvoices(c *fiber.Ctx) error {
 
 	return genericHandler.FindAssociatedHandler[invoice.Invoice](c)
+}
+
+func GenerateReciept(c *fiber.Ctx) error {
+
+	db := dbAdapter.DB
+	var Payload CreateReciept
+	err := json.Unmarshal(c.Body(), &Payload)
+	if err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+	var Invoice invoice.Invoice
+	var InvoiceData invoice.Invoice
+	db.Where("id = ?", Payload.InvoiceId).First(&Invoice)
+	pendingAmount := Invoice.AmountPaid - Payload.AmountPaid
+	pendingAmount = math.Max(pendingAmount, 0)
+
+	InvoiceData.AmountPaid = Payload.AmountPaid + Invoice.AmountPaid
+	InvoiceData.PendingAmount = pendingAmount
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	var recieptErr, invoiceErr error
+
+	go func() {
+		defer wg.Done()
+		invoiceErr = db.Where("id = ?", Payload.InvoiceId).Updates(&InvoiceData).Error
+	}()
+
+	var Reciepts reciepts.Reciepts
+	Reciepts.InvoiceId = Payload.InvoiceId
+	Reciepts.AmountPaid = Payload.AmountPaid
+
+	go func() {
+		defer wg.Done()
+		recieptErr = db.Create(&Reciepts).Error
+	}()
+
+	wg.Wait()
+
+	if recieptErr != nil {
+		log.Info().Msgf("failed to create reciepts  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("failed to create reciepts")
+	}
+
+	if invoiceErr != nil {
+		log.Info().Msgf("failed to create reciepts  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("failed to create reciepts")
+	}
+
+	var response CreateInvoiceResponse
+	response.Invoice = Invoice
+	response.Reciept = Reciepts
+
+	newJSONData2, err := json.Marshal(response)
+	if err != nil {
+		log.Info().Msgf("error  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON")
+	}
+
+	return c.Status(fiber.StatusOK).SendString(string(newJSONData2))
 }

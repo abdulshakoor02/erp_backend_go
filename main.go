@@ -145,6 +145,7 @@ func main() {
 
 	//invoice
 	app.Post("/invoice/create", invoiceController.Create)
+	app.Post("/invoice/reciept/create", invoiceController.GenerateReciept)
 	app.Post("/invoice/findone", invoiceController.FindOne)
 	app.Post("/invoice/find", invoiceController.FindInvoices)
 	app.Post("/reciepts/find", invoiceController.FindReciepts)
