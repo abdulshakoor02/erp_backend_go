@@ -180,7 +180,7 @@ func FindOne(c *fiber.Ctx) error {
 	var response OneInvoiceResponse
 	response.Reciept = recpts[0]
 	response.Orders = orderdProds
-	response.Re = orderdProds
+	response.RecieptList = recieptList
 
 	newJSONData2, err := json.Marshal(response)
 	if err != nil {
