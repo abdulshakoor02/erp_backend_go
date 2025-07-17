@@ -77,8 +77,8 @@ left join employees e on e.id = l.employee_id;
 	go func() {
 		createRecieptView := `
         CREATE VIEW reciepts_view AS
-select r.id as id,r.invoice_id as invoice_id,r.amount_paid as amount_paid,i.discount as discount,r.reciept_no as reciept_no,
-r.created_at as created_at,i.lead_id as lead_id,i.total as total,i.pending_amount as pending_amount,
+select r.id as id,r.invoice_id as invoice_id,i.amount_paid as invoice_amount_paid,r.amount_paid as amount_paid,i.discount as discount,
+r.reciept_no as reciept_no,r.created_at as created_at,i.lead_id as lead_id,i.total as total,i.pending_amount as pending_amount,
 i.tenant_id as tenant_id,l."name" as lead_name,l.email as lead_email,l.mobile as lead_mobile,
 b."name" as branch_name,b.address as branch_address,b.mobile as branch_mobile,c.currency as currency,b.tax as tax
 from reciepts r inner join invoices i on r.invoice_id = i.id inner join leads l on i.lead_id = l.id inner join branches b  on l.branch_id = b.id
