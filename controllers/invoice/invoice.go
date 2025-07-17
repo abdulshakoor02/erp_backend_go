@@ -290,6 +290,7 @@ func GenerateReciept(c *fiber.Ctx) error {
 	}
 	var Invoice invoice.Invoice
 	var InvoiceData invoice.Invoice
+	mapInvoiceData := make(map[string]float64)
 	db.Where("id = ?", Payload.InvoiceId).First(&Invoice)
 	pendingAmount := Invoice.Total - (Invoice.AmountPaid + Invoice.Discount + Payload.AmountPaid)
 	log.Info().Msgf("before pending amount %v", pendingAmount)
@@ -298,6 +299,8 @@ func GenerateReciept(c *fiber.Ctx) error {
 
 	InvoiceData.AmountPaid = Payload.AmountPaid + Invoice.AmountPaid
 	InvoiceData.PendingAmount = pendingAmount
+	mapInvoiceData["amount_paid"] = InvoiceData.AmountPaid
+	mapInvoiceData["pending_amount"] = InvoiceData.PendingAmount
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -306,7 +309,7 @@ func GenerateReciept(c *fiber.Ctx) error {
 
 	go func() {
 		defer wg.Done()
-		invoiceErr = db.Where("id = ?", Payload.InvoiceId).Updates(&InvoiceData).Error
+		invoiceErr = db.Model(&invoice.Invoice{}).Where("id = ?", Payload.InvoiceId).Updates(&mapInvoiceData).Error
 	}()
 
 	var Reciepts reciepts.Reciepts
