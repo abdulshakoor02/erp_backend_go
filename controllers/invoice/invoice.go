@@ -69,7 +69,7 @@ func Create(c *fiber.Ctx) error {
 
 	Invoice.AmountPaid = Payload.AmountPaid
 	Invoice.Total = Payload.Total
-	pendingAmount := Payload.Total - Payload.AmountPaid - Payload.Discount
+	pendingAmount := Payload.Total - (Payload.AmountPaid + Payload.Discount)
 	pendingAmount = math.Max(pendingAmount, 0)
 	Invoice.PendingAmount = pendingAmount
 	Invoice.LeadId = Payload.LeadId
@@ -291,7 +291,7 @@ func GenerateReciept(c *fiber.Ctx) error {
 	var Invoice invoice.Invoice
 	var InvoiceData invoice.Invoice
 	db.Where("id = ?", Payload.InvoiceId).First(&Invoice)
-	pendingAmount := Invoice.Total - (Invoice.AmountPaid + Payload.AmountPaid)
+	pendingAmount := Invoice.Total - (Invoice.AmountPaid + Invoice.Discount + Payload.AmountPaid)
 	log.Info().Msgf("before pending amount %v", pendingAmount)
 	pendingAmount = math.Max(pendingAmount, 0)
 	log.Info().Msgf("after pending amount %v", pendingAmount)
