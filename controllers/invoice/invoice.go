@@ -290,7 +290,6 @@ func GenerateReciept(c *fiber.Ctx) error {
 	}
 	var Invoice invoice.Invoice
 	var InvoiceData invoice.Invoice
-	mapInvoiceData := make(map[string]float64)
 	db.Where("id = ?", Payload.InvoiceId).First(&Invoice)
 	pendingAmount := Invoice.Total - (Invoice.AmountPaid + Invoice.Discount + Payload.AmountPaid)
 	log.Info().Msgf("before pending amount %v", pendingAmount)
@@ -299,8 +298,6 @@ func GenerateReciept(c *fiber.Ctx) error {
 
 	InvoiceData.AmountPaid = Payload.AmountPaid + Invoice.AmountPaid
 	InvoiceData.PendingAmount = pendingAmount
-	mapInvoiceData["amount_paid"] = InvoiceData.AmountPaid
-	mapInvoiceData["pending_amount"] = InvoiceData.PendingAmount
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -309,7 +306,7 @@ func GenerateReciept(c *fiber.Ctx) error {
 
 	go func() {
 		defer wg.Done()
-		invoiceErr = db.Model(&invoice.Invoice{}).Where("id = ?", Payload.InvoiceId).Updates(&mapInvoiceData).Error
+		invoiceErr = db.Where("id = ?", Payload.InvoiceId).Select("amount_paid", "pending_amount").Updates(&InvoiceData).Error
 	}()
 
 	var Reciepts reciepts.Reciepts
@@ -329,8 +326,8 @@ func GenerateReciept(c *fiber.Ctx) error {
 	}
 
 	if invoiceErr != nil {
-		log.Info().Msgf("failed to create reciepts  %v", err)
-		return c.Status(fiber.StatusBadRequest).SendString("failed to create reciepts")
+		log.Info().Msgf("failed to update invoice  %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("failed to update invoice")
 	}
 
 	var response CreateInvoiceResponse
