@@ -37,8 +37,9 @@ type GetOneInvoice struct {
 }
 
 type OneInvoiceResponse struct {
-	Reciept recieptView.RecieptView                   `json:"reciept"`
-	Orders  []orderedProductsView.OrderedProductsView `json:"orders"`
+	Reciept     recieptView.RecieptView                   `json:"reciept"`
+	RecieptList []reciepts.Reciepts                       `json:"reciept_list"`
+	Orders      []orderedProductsView.OrderedProductsView `json:"orders"`
 }
 
 type CreateInvoiceResponse struct {
@@ -129,19 +130,20 @@ func FindOne(c *fiber.Ctx) error {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
 	var (
-		reciepts    []recieptView.RecieptView
+		recpts      []recieptView.RecieptView
+		recieptList []reciepts.Reciepts
 		orderdProds []orderedProductsView.OrderedProductsView
 
-		recieptsErr, ordrdProdsErr error
+		recieptsErr, ordrdProdsErr, recieptsListErr error
 	)
 
 	go func() {
 		defer wg.Done()
 		db := dbAdapter.DB
-		recieptsErr = db.Table("reciepts_view").Where("id = ?", Payload.RecieptId).Find(&reciepts).Error
+		recieptsErr = db.Table("reciepts_view").Where("id = ?", Payload.RecieptId).Find(&recpts).Error
 		log.Info().Msgf("fetched reciepts")
 	}()
 
@@ -149,6 +151,13 @@ func FindOne(c *fiber.Ctx) error {
 		defer wg.Done()
 		db := dbAdapter.DB
 		ordrdProdsErr = db.Table("ordered_products_view").Where("invoice_id = ?", Payload.InvoiceId).Find(&orderdProds).Error
+		log.Info().Msgf("fetched orderdProds")
+	}()
+
+	go func() {
+		defer wg.Done()
+		db := dbAdapter.DB
+		recieptsListErr = db.Where("invoice_id = ?", Payload.InvoiceId).Find(&recieptList).Error
 		log.Info().Msgf("fetched orderdProds")
 	}()
 
@@ -163,9 +172,15 @@ func FindOne(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
 	}
 
+	if recieptsListErr != nil {
+		log.Info().Msgf("failed to create invoice  %v", recieptsListErr)
+		return c.Status(fiber.StatusBadRequest).SendString("cannot create invoice without a tenant")
+	}
+
 	var response OneInvoiceResponse
-	response.Reciept = reciepts[0]
+	response.Reciept = recpts[0]
 	response.Orders = orderdProds
+	response.Re = orderdProds
 
 	newJSONData2, err := json.Marshal(response)
 	if err != nil {
